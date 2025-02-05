@@ -1,14 +1,14 @@
 // Exemple de code pour faire une requête API en utilisant la librairie 'request'
-//const request = require("request");
+// const request = require("request");
 
 
-//const API_KEY = "38f9264b8e345e5059d64b5e08c19663";
-// des données métriques en anglais
-//const BASE_URL = "http://api.openweathermap.org/data/2.5/weather?appid=" + API_KEY + "&q=";
-// des données métriques en français
-//const BASE_URL = "http://api.openweathermap.org/data/2.5/weather?appid=" + API_KEY + "&units=metric&lang=fr&q=";
+// const API_KEY = "38f9264b8e345e5059d64b5e08c19663";
+// //des données métriques en anglais
+// //const BASE_URL = "http://api.openweathermap.org/data/2.5/weather?appid=" + API_KEY + "&q=";
+// //des données métriques en français
+// const BASE_URL = "http://api.openweathermap.org/data/2.5/weather?appid=" + API_KEY + "&units=metric&lang=fr&q=";
 
-// *************** récupérer les données météo en utilisant request *********************
+// //*************** récupérer les données météo en utilisant request *********************
 
 // function getWeatherData(city, callback) {
     
@@ -37,42 +37,19 @@
 
 // ******************** récupérer les données météo en utilisant fetch **************************
 
-const fetch = require('node-fetch');
-const API_KEY = "38f9264b8e345e5059d64b5e08c19663";
-const BASE_URL = "http://api.openweathermap.org/data/2.5/weather?appid=" + API_KEY + "&units=metric&lang=fr&q=";
-
-async function getWeatherData(city) {
-  const url = BASE_URL + city;
-  const response = await fetch(url);
-  const data = await response.json();
-  return data;
-}
-
-// Appel de la fonction getWeatherData et affichage des résultats
-
-getWeatherData("Sousse")
-  .then((data) => {
-    console.log("Description :", data.weather[0].description);
-    console.log("Température :", data.main.temp);
-    console.log("Humidité :", data.main.humidity);
-  })
-  .catch((error) => {
-    console.error("Erreur :", error);
-  });
-
-
-// ******************** récupérer les données météo en utilisant axios **************************
-// const axios = require("axios");
-
-
+// const fetch = require('node-fetch');
 // const API_KEY = "38f9264b8e345e5059d64b5e08c19663";
 // const BASE_URL = "http://api.openweathermap.org/data/2.5/weather?appid=" + API_KEY + "&units=metric&lang=fr&q=";
 
 // async function getWeatherData(city) {
 //   const url = BASE_URL + city;
-//   const response = await axios.get(url);
-//   return response.data;
+//   const response = await fetch(url);
+//   const data = await response.json();
+//   return data;
 // }
+
+// // Appel de la fonction getWeatherData et affichage des résultats
+
 // getWeatherData("Sousse")
 //   .then((data) => {
 //     console.log("Description :", data.weather[0].description);
@@ -82,3 +59,26 @@ getWeatherData("Sousse")
 //   .catch((error) => {
 //     console.error("Erreur :", error);
 //   });
+
+
+// ******************** récupérer les données météo en utilisant axios **************************
+const axios = require("axios");
+
+
+const API_KEY = "38f9264b8e345e5059d64b5e08c19663";
+const BASE_URL = "http://api.openweathermap.org/data/2.5/weather?appid=" + API_KEY + "&units=metric&lang=fr&q=";
+
+async function getWeatherData(city) {
+  const url = BASE_URL + city;
+  const response = await axios.get(url);
+  return response.data;
+}
+getWeatherData("Sousse")
+  .then((data) => {
+    console.log("Description :", data.weather[0].description);
+    console.log("Température :", data.main.temp);
+    console.log("Humidité :", data.main.humidity);
+  })
+  .catch((error) => {
+    console.error("Erreur :", error);
+  });
