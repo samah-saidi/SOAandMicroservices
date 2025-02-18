@@ -19,15 +19,16 @@ Ce TP a pour objectif de créer une API RESTful en utilisant **Express JS** et *
 ## 🎯 Objectifs
 
 ✅ Créer une API REST avec **Express JS**.
-✅  Utiliser les bonnes pratiques pour les API RESTful.
-✅  Gérer une base de données avec **SQLite3**.
-✅  Optionnel : Sécuriser l'API avec **Keycloak**.
+✅ Utiliser les bonnes pratiques pour les API RESTful.
+✅ Gérer une base de données avec **SQLite3**.
+✅ Optionnel : Sécuriser l'API avec **Keycloak**.
 
 ---
 
 ## 🛠 Technologies Utilisées
 
 -🟢 **Node.js** : Environnement d'exécution JavaScript.
+
 - ⚡**Express JS** : Framework pour structurer l'API.
 - 🗄️**SQLite3** : Base de données légère et embarquée.
 - 🔐**Keycloak** (Optionnel) : Solution d'authentification OAuth 2.0.
@@ -37,7 +38,7 @@ Ce TP a pour objectif de créer une API RESTful en utilisant **Express JS** et *
 
 ## 🚀 Étapes du TP
 
-###  1️⃣ **Initialisation du Projet**
+### 1️⃣ **Initialisation du Projet**
 
 1. Créez un dossier pour votre projet.
 2. Initialisez un projet Node.js :
@@ -52,8 +53,10 @@ Ce TP a pour objectif de créer une API RESTful en utilisant **Express JS** et *
     npm install express sqlite3
 ```
 
-###  2️⃣  **Configuration de SQLite3**
+### 2️⃣ **Configuration de SQLite3**
+
 📄 Créer database.js et ajouter :
+
 ```JavaScript
     const sqlite3 = require('sqlite3').verbose();
 
@@ -81,10 +84,11 @@ Ce TP a pour objectif de créer une API RESTful en utilisant **Express JS** et *
 
     module.exports = db;
 ```
+
 3️⃣ Création de l'API avec Express
 📄 Créer index.js et ajouter :
 
-```JavaScript 
+```JavaScript
     const express = require('express');
 const session = require('express-session');
 const Keycloak = require('keycloak-connect');
@@ -140,7 +144,7 @@ app.get('/personnes/:id', keycloak.protect(), (req, res) => {
       res.status(400).json({
         "error": err.message
       });
-      return; 
+      return;
     }
     if (!row) {
       res.status(404).json({
@@ -150,7 +154,7 @@ app.get('/personnes/:id', keycloak.protect(), (req, res) => {
     }
     res.json({
       "message": "success",
-      "data": row 
+      "data": row
     });
   });
 });
@@ -164,18 +168,18 @@ app.post('/personnes', keycloak.protect(), (req, res) => {
     });
     return;
   }
-  
+
   db.run(`INSERT INTO personnes (nom, adresse) VALUES (?, ?)`, [nom, adresse || null], function(err) {
     if (err) {
       res.status(400).json({
         "error": err.message
       });
-      return; 
+      return;
     }
     res.status(201).json({
       "message": "success",
       "data": {
-        id: this.lastID 
+        id: this.lastID
       }
     });
   });
@@ -185,7 +189,7 @@ app.post('/personnes', keycloak.protect(), (req, res) => {
 app.put('/personnes/:id', keycloak.protect(), (req, res) => {
   const id = req.params.id;
   const { nom, adresse } = req.body;
-  
+
   // First check if the person exists
   db.get("SELECT * FROM personnes WHERE id = ?", [id], (err, row) => {
     if (err) {
@@ -200,27 +204,27 @@ app.put('/personnes/:id', keycloak.protect(), (req, res) => {
       });
       return;
     }
-    
+
     // If the person exists, update their information
     const nomToUpdate = nom || row.nom;
     const adresseToUpdate = adresse !== undefined ? adresse : row.adresse;
-    
-    db.run(`UPDATE personnes SET nom = ?, adresse = ? WHERE id = ?`, 
+
+    db.run(`UPDATE personnes SET nom = ?, adresse = ? WHERE id = ?`,
            [nomToUpdate, adresseToUpdate, id], function(err) {
       if (err) {
         res.status(400).json({
           "error": err.message
         });
-        return; 
+        return;
       }
-      
+
       if (this.changes === 0) {
         res.status(404).json({
           "message": "No person found with that ID"
         });
         return;
       }
-      
+
       res.json({
         "message": "success",
         "changes": this.changes
@@ -232,7 +236,7 @@ app.put('/personnes/:id', keycloak.protect(), (req, res) => {
 // Delete a person - protected by Keycloak
 app.delete('/personnes/:id', keycloak.protect(), (req, res) => {
   const id = req.params.id;
-  
+
   db.run(`DELETE FROM personnes WHERE id = ?`, id, function(err) {
     if (err) {
       res.status(400).json({
@@ -240,14 +244,14 @@ app.delete('/personnes/:id', keycloak.protect(), (req, res) => {
       });
       return;
     }
-    
+
     if (this.changes === 0) {
       res.status(404).json({
         "message": "No person found with that ID"
       });
       return;
     }
-    
+
     res.json({
       "message": "success",
       "changes": this.changes
@@ -261,8 +265,10 @@ app.listen(PORT, () => {
 });
 
 ```
+
 4️⃣ Modification de la Base de Données
 Ajout d'une colonne adresse :
+
 ```JavaScript
     db.run(`CREATE TABLE IF NOT EXISTS personnes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -287,27 +293,29 @@ Ajout d'une colonne adresse :
 ![Récupérer la personne d'ID 3](images/img4.png)
 
 🔹 GET /personnes/1 → Récupérer la personne d'ID 10 → message d'erreur "personne n'est pas trouvable "
-![Récupérer la personne d'ID 10](images/img5.png) 
+![Récupérer la personne d'ID 10](images/img5.png)
 
 🔹 POST /personnes → Ajouter une personne { "nom": "samah", "adresse": "mednine" }
-![Récupérer personne d'ID 10](images/img6.png) 
+![Récupérer personne d'ID 10](images/img6.png)
 
 🔹 PUT /personnes/1 → Modifier { "nom": "samah SAIDI", "adresse": "Djerba" } / { "nom": "samah " }
 ![Modifier la personne d'ID 4](images/img7.png)
- ![Modifier la personne d'ID 4](images/img8.png) 
+![Modifier la personne d'ID 4](images/img8.png)
 
 🔹 DELETE /personnes/1 → Supprimer une personne
 ![Supprimer lne personne d'ID 4](images/img9.png)
 
-
 6️⃣ (🔐 Optionnel) Authentification avec Keycloak
+
 1. Installation :
+
 ```bash
     npm install keycloak-connect
 ```
+
 2. Configuration Keycloak :
-Créer un fichier de configuration Keycloak, par exemple keycloak-config.json, 
-contenant :
+   Créer un fichier de configuration Keycloak, par exemple keycloak-config.json,
+   contenant :
 
 ```bash
 {
@@ -315,21 +323,23 @@ contenant :
     "auth-server-url": "http://localhost:8080/auth",
     "ssl-required": "external",
     "resource": "pai-id",
-    "credentials": 
+    "credentials":
     {
     "secret": "api-secret"
     },
     "confidential-port": 0
 }
 ```
+
 3. Ajouter Keycloak dans votre API : Modifiez index.js pour inclure Keycloak :
+
 ```bash
     const session = require('express-session');
     const Keycloak = require('keycloak-connect');
     const memoryStore = new session.MemoryStore();
     app.use(session(
         {
-    secret: 'api-secret', 
+    secret: 'api-secret',
     resave: false,
     saveUninitialized: true,
     store: memoryStore
@@ -343,10 +353,12 @@ contenant :
     });
 
 ```
+
 4. Pour sécuriser les autres routes, utilisez keycloak.protect() ::
+
 ```bash
     // Exemple de sécurisation d'une route existante
-    app.get('/personnes', keycloak.protect(), (req, res) => 
+    app.get('/personnes', keycloak.protect(), (req, res) =>
     {
     db.all("SELECT * FROM personnes", [], (err, rows) => {
     if (err) {
@@ -357,9 +369,11 @@ contenant :
     });
     });
 ```
-5. Configurez Keycloak :
-Créez un fichier keycloak-config.json avec les paramètres de votre realm et client Keycloak.
 
+5. Configurez Keycloak :
+   Créez un fichier keycloak-config.json avec les paramètres de votre realm et client Keycloak.
+   ![keycloak](images/img20.png)
+   ![keycloak](images/img21.png)
 6. 🧪 Tester avec Postman :
 
 Ajoutez un token JWT dans les en-têtes des requêtes pour accéder aux routes sécurisées.
@@ -375,14 +389,15 @@ Ajoutez un token JWT dans les en-têtes des requêtes pour accéder aux routes s
 ![GET](images/img16.png)
 🔹 POST /personnes
 ![POST](images/img17.png)
-![PUT](images/img18.png)
-![DELETE](images/img19.png)
 
+🔹 PUT /personnes
+![PUT](images/img18.png)
+
+🔹 DELETE /personnes
+![DELETE](images/img19.png)
 
 📜 Auteur
 👤 Samah Saidi
 4Info - Classe DS1
 📧 Contact: samah.saidi@polytechnicien.tn
 🔗 GitHub: https://github.com/samah-saidi
-
-
