@@ -47,7 +47,7 @@ SQLite3 (pour la gestion des données)
 
 Ouvrez ce fichier dans un navigateur et vérifiez que les données sont bien récupérées. ✅
 
-![ HTML ](images/indexhtml.png)
+![ HTML ](img/indexhtml.png)
 
 Tester Rate Limiting 1- Utilisez Postman pour envoyer plus de 100 requêtes en moins de 15 minutes. 🚀
 
