@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+message Commande {
+    int32 id_commande = 1;
+    string nom_client = 2;
+    string date_commande = 3;
+    float montant_total = 4;
+    StatutCommande statut = 5;
+    repeated Produit produits = 6;
+}
+
+message Produit {
+    string nom = 1;
+    int32 quantite = 2;
+    float prix_unitaire = 3;
+}
+
+enum StatutCommande {
+    EN_ATTENTE = 0;
+    EN_COURS = 1;
+    TERMINEE = 2;
+}
+

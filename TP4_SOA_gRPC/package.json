@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "@grpc/grpc-js": "^1.13.0",
+    "@grpc/proto-loader": "^0.7.13"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "name": "tp4_soa_grpc",
+  "version": "1.0.0",
+  "main": "server.js",
+  "devDependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
