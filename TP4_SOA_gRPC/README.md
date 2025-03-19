@@ -104,10 +104,15 @@ node server.js
 📡 Pour tester le service gRPC avec Postman :
 
 Créer une nouvelle requête gRPC : New → gRPC Request
+
 Indiquer l’hôte : localhost:50051
+
 Importer hello.proto
+
 Sélectionner le service Greeter et la méthode SayHello
+
 Envoyer un JSON avec :
+
 ![img](testpostman.png)
 
 📜 Auteur
