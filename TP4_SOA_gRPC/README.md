@@ -1,12 +1,17 @@
 # 🚀 TP4 : Introduction à gRPC
 
 🎯 Objectifs
+
 ✔️ Mettre en place un service gRPC pour envoyer et recevoir des requêtes efficacement.
+
 ✔️ Créer un reverse proxy pour faciliter la communication avec le service gRPC.
 
 🛠️ Outils utilisés
+
 🔹 Node.js
+
 🔹 gRPC
+
 🔹 protoLoader
 
 🏗️ Étapes d'installation et de configuration
@@ -24,6 +29,7 @@ npm init -y
 ```
 
 3️⃣ Installation des dépendances
+
 ⚙️ Installez les packages nécessaires :
 
 ```bash
@@ -31,6 +37,7 @@ npm install @grpc/grpc-js @grpc/proto-loader
 ```
 
 4️⃣ Création du fichier hello.proto
+
 📜 Ajoutez ce contenu au fichier hello.proto :
 
 ```proto
@@ -52,6 +59,7 @@ npm install @grpc/grpc-js @grpc/proto-loader
 ```
 
 5️⃣ Création du serveur gRPC
+
 🖥️ Ajoutez ce code dans server.js :
 
 ```js
@@ -88,6 +96,7 @@ main();
 ```
 
 6️⃣ Lancer le serveur
+
 Démarrez le serveur avec :
 
 ```bash
@@ -101,6 +110,7 @@ node server.js
 ```
 
 7️⃣ Test avec Postman
+
 📡 Pour tester le service gRPC avec Postman :
 
 Créer une nouvelle requête gRPC : New → gRPC Request
@@ -116,7 +126,11 @@ Envoyer un JSON avec :
 ![img](testpostman.png)
 
 📜 Auteur
+
 👤 Samah Saidi
+
 4Info - Classe DS1
+
 📧 Contact: samah.saidi@polytechnicien.tn
+
 🔗 GitHub: https://github.com/samah-saidi
