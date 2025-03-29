@@ -20,12 +20,15 @@
 ⚙️ Installation
 
 1️⃣ Créer et accéder au répertoire du projet
+
 ```bash
 mkdir TP5-SOA_grpc-ws-reverse-proxy
 cd TP5-SOA_grpc-ws-reverse-proxy
 npm init -y
 ```
+
 2️⃣ Installer les dépendances
+
 ```bash
 npm install @grpc/grpc-js @grpc/proto-loader ws
 ```
@@ -33,11 +36,11 @@ npm install @grpc/grpc-js @grpc/proto-loader ws
 📂 Structure du Projet
 
 TP5_SOA_grpc-ws-reverse-proxy/
-├── 📜 chat.proto         # Définition du service avec Protocol Buffers
-├── 🖥️ server.js          # Implémentation du serveur gRPC
-├── 🔄 proxy.js           # Reverse proxy WebSocket
-├── 🌐 client.html        # Interface web
-└── 📖 README.md          # Ce fichier
+├── 📜 chat.proto # Définition du service avec Protocol Buffers
+├── 🖥️ server.js # Implémentation du serveur gRPC
+├── 🔄 proxy.js # Reverse proxy WebSocket
+├── 🌐 client.html # Interface web
+└── 📖 README.md # Ce fichier
 
 📄 Création Fichiers du Projet
 
@@ -52,24 +55,28 @@ TP5_SOA_grpc-ws-reverse-proxy/
 🚀 Démarrage du Projet
 
 ▶️ 1. Lancer le serveur gRPC
+
 ```bash
 node server.js
 ```
+
 ✅ Sortie attendue : 🚀 Serveur gRPC en écoute sur 0.0.0.0:50051
 
 ▶️ 2. Lancer le reverse proxy WebSocket
+
 ```bash
 node proxy.js
 ```
+
 ✅ Sortie attendue : 🔄 Reverse proxy WebSocket en écoute sur ws://localhost:8080
 
 🌐 3. Ouvrir le client web
 
 🛠️ Tests avec Postman
 
-1️⃣ Ouvrez Postman et créez une nouvelle requête WebSocket 
+1️⃣ Ouvrez Postman et créez une nouvelle requête WebSocket
 
-2️⃣ Connectez-vous à l'URL ws://localhost:8080 
+2️⃣ Connectez-vous à l'URL ws://localhost:8080
 
 3️⃣ Envoyez un message JSON au format suivant :
 
@@ -83,15 +90,23 @@ node proxy.js
   }
 }
 ```
+
 4️⃣ Vous devriez recevoir une réponse du serveur avec un horodatage ⏳
 
 ✅ Fonctionnalités Implémentées
+
 🔹 Fonctionnalités de Base
+
 👤 Récupération des informations utilisateur via gRPC
+
 🔄 Streaming bidirectionnel des messages de chat
+
 🌐 Relais des messages WebSocket vers gRPC
+
 🔹 Fonctionnalités Étendues
+
 📜 Stockage et récupération de l'historique des messages
+
 🌍 Client web simple pour les messages en temps réel
 
 📜 Auteur
