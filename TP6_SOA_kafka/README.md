@@ -293,13 +293,13 @@ GET /api/messages/:id Récupérer un message par ID
 
 GET http://localhost:3000/api/messages
 
-![images](images/img1.png)
+![images](img/img1.png)
 
 ✅ Via MongoDB Compass
 
-![images](images/img2.png)
+![images](img/img2.png)
 
-![images](images/img3.png)
+![images](img/img3.png)
 
 ✅ Console : logs de production et consommation
 
