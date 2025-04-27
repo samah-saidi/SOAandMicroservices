@@ -82,12 +82,19 @@ net start MongoDB
 ## 📂 Structure du Projet
 
 TP6_SOA_Kafka/
+
 ├── producer.js
+
 ├── consumer.js
+
 ├── api.js
+
 ├── package.json
+
 ├── /package-lock.json
+
 ├── node_modules/
+
 └── README.md
 
 📝 Explication du code
@@ -286,13 +293,13 @@ GET /api/messages/:id Récupérer un message par ID
 
 GET http://localhost:3000/api/messages
 
-![img](img1.png)
+![images](img1.png)
 
 ✅ Via MongoDB Compass
 
-![img](img2.png)
+![images](img2.png)
 
-![img](img3.png)
+![images](img3.png)
 
 ✅ Console : logs de production et consommation
 
