@@ -11,12 +11,12 @@
 
 Ce projet implémente une architecture de microservices pour gérer un système de streaming contenant des films et des séries TV. L'architecture utilise des technologies modernes comme gRPC pour la communication entre microservices, Kafka pour la communication asynchrone événementielle, et expose les données aux clients via des API REST et GraphQL.
 
-
 ## 🏗️ Architecture
 
 ![alt text](image.png)
 
 Ce diagramme illustre l'architecture du système :
+
 1. L'API Gateway agit comme point d'entrée unique pour les clients
 2. Les requêtes des clients sont traduites en appels gRPC vers les microservices appropriés
 3. Les microservices communiquent entre eux via Kafka pour des opérations asynchrones
@@ -104,11 +104,13 @@ bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-fac
 ## 🚦 Démarrage des services
 
 ### 1. Démarrer MongoDB
+
 ```bash
 mongod --dbpath /data/db
 ```
 
 ### 2. Démarrer les microservices (dans des terminaux séparés)
+
 ```bash
 # Microservice Films
 node movies/movieMicroservice.js
@@ -135,13 +137,14 @@ Une fois tous les services démarrés, vous devriez voir des messages de confirm
   - Corps de la requête: `{ "title": "New Title", "description": "New Description" }`
 - ❌ **DELETE** `/movies/:id` : Supprime un film
 
-> *Les mêmes opérations sont disponibles pour les séries TV avec le préfixe `/tvshows`*
+> _Les mêmes opérations sont disponibles pour les séries TV avec le préfixe `/tvshows`_
 
 ### API GraphQL
 
 Accédez à l'interface GraphQL via http://localhost:3000/graphql
 
 **Exemples de requêtes** :
+
 ```graphql
 # Récupérer tous les films
 query {
@@ -162,7 +165,11 @@ query {
 
 # Créer un film
 mutation {
-  createMovie(id: "123", title: "Inception", description: "Un film sur les rêves") {
+  createMovie(
+    id: "123"
+    title: "Inception"
+    description: "Un film sur les rêves"
+  ) {
     id
     title
     description
@@ -171,7 +178,11 @@ mutation {
 
 # Mettre à jour un film
 mutation {
-  updateMovie(id: "123", title: "Inception 2.0", description: "La suite du film sur les rêves") {
+  updateMovie(
+    id: "123"
+    title: "Inception 2.0"
+    description: "La suite du film sur les rêves"
+  ) {
     id
     title
     description
@@ -199,11 +210,11 @@ mutation {
 ### Code pour un producteur Kafka
 
 ```javascript
-const { Kafka } = require('kafkajs');
+const { Kafka } = require("kafkajs");
 
 const kafka = new Kafka({
-  clientId: 'my-app',
-  brokers: ['localhost:9092']
+  clientId: "my-app",
+  brokers: ["localhost:9092"],
 });
 
 const producer = kafka.producer();
@@ -218,17 +229,17 @@ const sendMessage = async (topic, message) => {
 };
 
 // Exemple d'utilisation dans l'API Gateway
-app.post('/movies', async (req, res) => {
+app.post("/movies", async (req, res) => {
   const movieData = req.body;
-  await sendMessage('movies_topic', movieData);
-  res.send({ message: 'Movie created', data: movieData });
+  await sendMessage("movies_topic", movieData);
+  res.send({ message: "Movie created", data: movieData });
 });
 ```
 
 ### Code pour un consommateur Kafka
 
 ```javascript
-const consumer = kafka.consumer({ groupId: 'group-id' });
+const consumer = kafka.consumer({ groupId: "group-id" });
 
 const consumeMessages = async (topic) => {
   await consumer.connect();
@@ -242,6 +253,15 @@ const consumeMessages = async (topic) => {
 };
 
 // Démarrer la consommation des messages
-consumeMessages('movies_topic');
+consumeMessages("movies_topic");
 ```
 
+📜 Auteur
+
+👤 Samah Saidi
+
+4Info - Classe DS1
+
+📧 Contact: samah.saidi@polytechnicien.tn
+
+🔗 GitHub: https://github.com/samah-saidi
