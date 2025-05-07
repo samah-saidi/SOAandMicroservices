@@ -1,0 +1,12 @@
+{
+    "name": "service-b-products",
+    "version": "1.0.0",
+    "description": "Microservice pour la gestion des produits",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js"
+    },
+    "dependencies": {
+      "express": "^4.18.2"
+    }
+  }
