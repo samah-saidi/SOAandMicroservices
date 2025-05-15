@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package article;
+
+// Définition d'un Article de décoration
+message Article {
+  string id = 1;
+  string nom_art = 2;
+  string description = 3;
+  double prix = 4;
+  int32 stock = 5;
+  string categorie_id = 6;
+  string image_url = 7;
+  repeated string tags = 8;
+  string date_creation = 9;
+  string date_modification = 10;
+}
+
+// Requête pour obtenir un article par ID
+message GetArticleRequest {
+  string id = 1;
+}
+
+// Réponse pour un article
+message GetArticleResponse {
+  Article article = 1;
+}
+
+// Requête pour obtenir tous les articles
+message ListArticlesRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string categorie_id = 3; // filtrage optionnel par catégorie
+}
+
+// Réponse pour la liste d'articles
+message ListArticlesResponse {
+  repeated Article articles = 1;
+  int32 total = 2;
+}
+
+// Requête pour créer ou mettre à jour un article
+message CreateUpdateArticleRequest {
+  Article article = 1;
+}
+
+// Réponse après création ou mise à jour
+message CreateUpdateArticleResponse {
+  Article article = 1;
+  bool success = 2;
+}
+
+// Requête pour supprimer un article
+message DeleteArticleRequest {
+  string id = 1;
+}
+
+// Réponse après suppression
+message DeleteArticleResponse {
+  bool success = 1;
+}
+
+// Recherche d'articles
+message SearchArticlesRequest {
+  string query = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+// Réponse de recherche d'articles
+message SearchArticlesResponse {
+  repeated Article articles = 1;
+  int32 total = 2;
+}
+
+// Service gRPC pour les articles
+service ArticleService {
+  rpc GetArticle(GetArticleRequest) returns (GetArticleResponse);
+  rpc ListArticles(ListArticlesRequest) returns (ListArticlesResponse);
+  rpc CreateArticle(CreateUpdateArticleRequest) returns (CreateUpdateArticleResponse);
+  rpc UpdateArticle(CreateUpdateArticleRequest) returns (CreateUpdateArticleResponse);
+  rpc DeleteArticle(DeleteArticleRequest) returns (DeleteArticleResponse);
+  rpc SearchArticles(SearchArticlesRequest) returns (SearchArticlesResponse);
+}

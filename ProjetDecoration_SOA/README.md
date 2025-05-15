@@ -35,7 +35,7 @@ Il utilise :
 +-------------------+         +-------------------+         +-------------------+
 |                   |         |                   |         |                   |
 |  API Gateway      +-------->+  Auth Service     |         |  Product Service  |
-|  (Express, port   |         |  (gRPC, port 50051|         |  (gRPC, port 50055|
+|  (Express, port   |         |  (gRPC, port 50051|         |  (gRPC, port 50056|
 |   4000)           |         |   MongoDB)        |         |   MongoDB)        |
 +--------+----------+         +-------------------+         +-------------------+
          |                                                    
@@ -72,13 +72,15 @@ Il utilise :
 ### Composants Principaux
 
 #### 1. API Gateway (Port 4000)
-- **Technologies**: Express.js, Apollo Server
+- **Technologies**: Express.js, Apollo Server, GraphQL
 - **Fonctionnalités**:
   - Point d'entrée unique pour tous les clients
   - Support REST et GraphQL
   - Gestion de l'authentification
   - Routage des requêtes vers les microservices
   - Publication d'événements Kafka
+  - Validation des tokens JWT
+  - Gestion des erreurs centralisée
 
 #### 2. Services Microservices (gRPC)
 
@@ -87,7 +89,9 @@ Il utilise :
   - Inscription utilisateur
   - Connexion
   - Validation de token
+  - Gestion des rôles (admin/client)
 - **Sécurité**: JWT
+- **Base de données**: MongoDB
 - **Événements**: Publication des événements d'authentification
 
 ##### Cart Service (Port 50054)
@@ -95,69 +99,94 @@ Il utilise :
   - Ajout au panier
   - Suppression du panier
   - Consultation du panier
-- **Stockage**: In-memory (extensible vers MongoDB)
+  - Gestion des quantités
+  - Calcul du total
+- **Stockage**: MongoDB
+- **Événements**: Publication des événements de panier
 
-##### Product Service (Port 50055)
+##### Product Service (Port 50056)
 - **Fonctionnalités**:
   - CRUD produits
   - Recherche de produits
   - Gestion des catégories
+  - Filtrage par prix
+  - Gestion des stocks
 - **Base de données**: MongoDB
+- **Événements**: Publication des événements de produits
 
 ##### Decoration Service (Port 50053)
 - **Fonctionnalités**:
   - CRUD articles de décoration
   - Filtrage par style et matériau
   - Filtrage par gamme de prix
+  - Gestion des dimensions
+  - Gestion des couleurs
 - **Base de données**: MongoDB
+- **Événements**: Publication des événements de décoration
 
 #### 3. Système d'Événements (Kafka)
 - **Port**: 9092
 - **Topics**:
-  - `gateway_events`
-  - `product_events`
-  - `decoration_events`
-  - `auth_events`
+  - `gateway_events`: Événements généraux de l'API Gateway
+  - `product_events`: Événements liés aux produits
+  - `decoration_events`: Événements liés aux articles de décoration
+  - `auth_events`: Événements d'authentification
+  - `cart_events`: Événements liés au panier
 
 ### Flux de Communication
 
 1. **Flux d'Authentification**
 ```
-Client → API Gateway → Auth Service → JWT Token
+Client → API Gateway → Auth Service → MongoDB
                       ↓
-                  Kafka Events
+                  Kafka Events (auth_events)
 ```
 
 2. **Flux de Gestion des Produits**
 ```
 Client → API Gateway → Product Service → MongoDB
                       ↓
-                  Kafka Events
+                  Kafka Events (product_events)
 ```
 
 3. **Flux de Gestion du Panier**
 ```
-Client → API Gateway → Cart Service → In-memory Storage
+Client → API Gateway → Cart Service → MongoDB
+                      ↓
+                  Kafka Events (cart_events)
 ```
 
 4. **Flux de Gestion de la Décoration**
 ```
 Client → API Gateway → Decoration Service → MongoDB
                       ↓
-                  Kafka Events
+                  Kafka Events (decoration_events)
 ```
 
 ### Sécurité
 - Authentification basée sur JWT
 - Contrôle d'accès basé sur les rôles (admin/client)
-- Gestion sécurisée des mots de passe
+- Gestion sécurisée des mots de passe (hachage bcrypt)
 - Middleware de validation des tokens
+- Protection contre les injections
+- Validation des entrées
+- Rate limiting
+- CORS configuré
+
+### Monitoring et Logging
+- Logs centralisés pour chaque service
+- Métriques de performance
+- Traçage des requêtes
+- Alertes sur les erreurs
+- Monitoring des ressources
 
 ### Composants de Test
 - Interface frontend de test (Port 3000)
-- Test des messages Kafka
+- Tests des messages Kafka
 - Test d'authentification
 - Test des API REST via Postman
+- Tests GraphQL via Apollo Studio
+- Tests de charge avec Artillery
 
 ### Pipeline CI/CD
 
@@ -262,7 +291,7 @@ grpcurl -plaintext -d '{"userId": "user1"}' \
   localhost:50054 CartService/GetCart
 ```
 
-##### Product Service (Port 50055)
+##### Product Service (Port 50056)
 ```bash
 # Tester la recherche de produits
 grpcurl -plaintext -d '{
@@ -270,11 +299,11 @@ grpcurl -plaintext -d '{
   "category": "furniture",
   "min_price": 100,
   "max_price": 500
-}' localhost:50055 ProductService/searchProducts
+}' localhost:50056 ProductService/searchProducts
 
 # Tester la récupération d'un produit
 grpcurl -plaintext -d '{"product_id": "prod1"}' \
-  localhost:50055 ProductService/getProduct
+  localhost:50056 ProductService/getProduct
 ```
 
 ##### Decoration Service (Port 50053)
@@ -373,6 +402,8 @@ describe('Proto Tests', () => {
   }
 }
 
+![auth service](images/test_register_admin.png)
+
 // Configuration de l'inscription
 {
   "method": "auth.AuthService/register",
@@ -409,12 +440,12 @@ describe('Proto Tests', () => {
 }
 ```
 
-##### Product Service (Port 50055)
+##### Product Service (Port 50056)
 ```json
 // Recherche de produits
 {
   "method": "ProductService/searchProducts",
-  "host": "localhost:50055",
+  "host": "localhost:50056",
   "request": {
     "query": "table",
     "category": "furniture",
@@ -426,7 +457,7 @@ describe('Proto Tests', () => {
 // Récupération d'un produit
 {
   "method": "ProductService/getProduct",
-  "host": "localhost:50055",
+  "host": "localhost:50056",
   "request": {
     "product_id": "prod1"
   }
@@ -461,7 +492,7 @@ describe('Proto Tests', () => {
 {
   "auth_service": "localhost:50051",
   "cart_service": "localhost:50054",
-  "product_service": "localhost:50055",
+  "product_service": "localhost:50056",
   "decoration_service": "localhost:50053",
   "api_gateway": "localhost:4000"
 }
@@ -645,12 +676,7 @@ Dans différents terminaux :
 
 ---
 
-## Auteurs
 
-- [Ton nom]
-- [Collaborateurs éventuels]
-
----
 
 ## Exemples de requêtes Postman
 
@@ -743,3 +769,9 @@ cd api-gateway
 node apiGateway.js
 
 
+## Auteurs
+
+- [Ton nom]
+- [Collaborateurs éventuels]
+
+---

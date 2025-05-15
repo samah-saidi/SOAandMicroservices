@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package article;
+
+message Article {
+  string id = 1;
+  string nomArt = 2;
+  string description = 3;
+  string categorie = 4;
+}
+
+message GetArticleRequest {
+  string article_id = 1;
+}
+
+message GetArticleResponse {
+  Article article = 1;
+}
+
+message ListArticlesResponse {
+  repeated Article articles = 1;
+}
+
+message CreateArticleRequest {
+  string nomArt = 1;
+  string description = 2;
+  string categorie = 3;
+}
+
+message CreateArticleResponse {
+  Article article = 1;
+}
+
+service ArticleService {
+  rpc GetArticle(GetArticleRequest) returns (GetArticleResponse);
+  rpc ListArticles(google.protobuf.Empty) returns (ListArticlesResponse);
+  rpc CreateArticle(CreateArticleRequest) returns (CreateArticleResponse);
+}
+
+import "google/protobuf/empty.proto";

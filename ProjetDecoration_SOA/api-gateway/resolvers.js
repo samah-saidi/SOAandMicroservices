@@ -43,7 +43,7 @@ const authClient = new authProto.AuthService(
 );
 
 const productClient = new productProto.ProductService(
-    'localhost:50055',
+    'localhost:50056',
     grpc.credentials.createInsecure()
 );
 
