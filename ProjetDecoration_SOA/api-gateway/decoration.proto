@@ -1,0 +1,92 @@
+syntax = "proto3";
+package decoration;
+
+// Définition du message Article de Décoration
+message DecorationArticle {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  float price = 4;
+  int32 stock = 5;
+  string style = 6;  // Style de décoration (moderne, classique, etc.)
+  string material = 7;  // Matériau principal
+  repeated string images = 8;
+  string dimensions = 9;  // Dimensions de l'article
+  string color = 10;  // Couleur principale
+}
+
+// Messages pour les requêtes et réponses
+message GetDecorationArticleRequest {
+  string article_id = 1;
+}
+
+message GetDecorationArticleResponse {
+  DecorationArticle article = 1;
+}
+
+message SearchDecorationArticlesRequest {
+  string query = 1;
+  string style = 2;
+  string material = 3;
+  float min_price = 4;
+  float max_price = 5;
+}
+
+message SearchDecorationArticlesResponse {
+  repeated DecorationArticle articles = 1;
+}
+
+message CreateDecorationArticleRequest {
+  string name = 1;
+  string description = 2;
+  double price = 3;
+  int32 stock = 4;
+  string style = 5;
+  string material = 6;
+  repeated string images = 7;
+  string dimensions = 8;
+  string color = 9;
+}
+
+message CreateDecorationArticleResponse {
+  bool success = 1;
+  string message = 2;
+  DecorationArticle article = 3;
+}
+
+message UpdateDecorationArticleRequest {
+  string article_id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  int32 stock = 5;
+  string style = 6;
+  string material = 7;
+  repeated string images = 8;
+  string dimensions = 9;
+  string color = 10;
+}
+
+message UpdateDecorationArticleResponse {
+  bool success = 1;
+  string message = 2;
+  DecorationArticle article = 3;
+}
+
+message DeleteDecorationArticleRequest {
+  string article_id = 1;
+}
+
+message DeleteDecorationArticleResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Service de gestion des articles de décoration
+service DecorationService {
+  rpc GetDecorationArticle(GetDecorationArticleRequest) returns (GetDecorationArticleResponse);
+  rpc SearchDecorationArticles(SearchDecorationArticlesRequest) returns (SearchDecorationArticlesResponse);
+  rpc CreateDecorationArticle(CreateDecorationArticleRequest) returns (CreateDecorationArticleResponse);
+  rpc UpdateDecorationArticle(UpdateDecorationArticleRequest) returns (UpdateDecorationArticleResponse);
+  rpc DeleteDecorationArticle(DeleteDecorationArticleRequest) returns (DeleteDecorationArticleResponse);
+} 

@@ -1,0 +1,106 @@
+syntax = "proto3";
+package decoration;
+
+// Définition du message Article de Décoration
+message DecorationArticle {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  float price = 4;
+  int32 stock = 5;
+  string category = 6;  // Catégorie de l'article (meubles, luminaires, etc.)
+  string style = 7;     // Style de décoration (moderne, classique, etc.)
+  string material = 8;  // Matériau principal
+  repeated string images = 9;
+  string dimensions = 10;  // Dimensions de l'article
+  string color = 11;      // Couleur principale
+  string brand = 12;      // Marque du produit
+  string condition = 13;  // État du produit (neuf, occasion, etc.)
+  string location = 14;   // Emplacement dans la maison (salon, chambre, etc.)
+}
+
+// Messages pour les requêtes et réponses
+message GetDecorationArticleRequest {
+  string article_id = 1;
+}
+
+message GetDecorationArticleResponse {
+  DecorationArticle article = 1;
+}
+
+message SearchDecorationArticlesRequest {
+  string query = 1;
+  string category = 2;
+  string style = 3;
+  string material = 4;
+  string location = 5;
+  float min_price = 6;
+  float max_price = 7;
+}
+
+message SearchDecorationArticlesResponse {
+  repeated DecorationArticle articles = 1;
+}
+
+message CreateDecorationArticleRequest {
+  string name = 1;
+  string description = 2;
+  double price = 3;
+  int32 stock = 4;
+  string category = 5;
+  string style = 6;
+  string material = 7;
+  repeated string images = 8;
+  string dimensions = 9;
+  string color = 10;
+  string brand = 11;
+  string condition = 12;
+  string location = 13;
+}
+
+message CreateDecorationArticleResponse {
+  bool success = 1;
+  string message = 2;
+  DecorationArticle article = 3;
+}
+
+message UpdateDecorationArticleRequest {
+  string article_id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  int32 stock = 5;
+  string category = 6;
+  string style = 7;
+  string material = 8;
+  repeated string images = 9;
+  string dimensions = 10;
+  string color = 11;
+  string brand = 12;
+  string condition = 13;
+  string location = 14;
+}
+
+message UpdateDecorationArticleResponse {
+  bool success = 1;
+  string message = 2;
+  DecorationArticle article = 3;
+}
+
+message DeleteDecorationArticleRequest {
+  string article_id = 1;
+}
+
+message DeleteDecorationArticleResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Service de gestion des articles de décoration
+service DecorationService {
+  rpc GetDecorationArticle(GetDecorationArticleRequest) returns (GetDecorationArticleResponse);
+  rpc SearchDecorationArticles(SearchDecorationArticlesRequest) returns (SearchDecorationArticlesResponse);
+  rpc CreateDecorationArticle(CreateDecorationArticleRequest) returns (CreateDecorationArticleResponse);
+  rpc UpdateDecorationArticle(UpdateDecorationArticleRequest) returns (UpdateDecorationArticleResponse);
+  rpc DeleteDecorationArticle(DeleteDecorationArticleRequest) returns (DeleteDecorationArticleResponse);
+} 

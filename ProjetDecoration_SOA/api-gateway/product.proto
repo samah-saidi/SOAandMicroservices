@@ -1,0 +1,82 @@
+syntax = "proto3";
+package product;
+
+// Définition du message Article
+message Product {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  int32 stock = 5;
+  string category = 6;
+  repeated string images = 7;
+}
+
+// Définition des messages pour les requêtes et réponses
+message GetProductRequest {
+  string product_id = 1;
+}
+
+message GetProductResponse {
+  Product product = 1;
+}
+
+message SearchProductsRequest {
+  string query = 1;
+  string category = 2;
+  double min_price = 3;
+  double max_price = 4;
+}
+
+message SearchProductsResponse {
+  repeated Product products = 1;
+}
+
+message CreateProductRequest {
+  string name = 1;
+  string description = 2;
+  double price = 3;
+  int32 stock = 4;
+  string category = 5;
+  repeated string images = 6;
+}
+
+message CreateProductResponse {
+  bool success = 1;
+  string message = 2;
+  Product product = 3;
+}
+
+message UpdateProductRequest {
+  string product_id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  int32 stock = 5;
+  string category = 6;
+  repeated string images = 7;
+}
+
+message UpdateProductResponse {
+  bool success = 1;
+  string message = 2;
+  Product product = 3;
+}
+
+message DeleteProductRequest {
+  string product_id = 1;
+}
+
+message DeleteProductResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Service de gestion des produits
+service ProductService {
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+  rpc SearchProducts(SearchProductsRequest) returns (SearchProductsResponse);
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+  rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse);
+  rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+} 
