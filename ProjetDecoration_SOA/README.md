@@ -1,5 +1,9 @@
 # Projet Décoration SOA – Microservices
 
+## Présentation du projet
+
+Ce projet vise à démontrer une architecture microservices moderne pour la gestion d'une boutique de produits de décoration. Il met en œuvre plusieurs services indépendants (authentification, gestion des produits, gestion du panier, gestion des articles de décoration) qui communiquent entre eux via gRPC et échangent des événements asynchrones via Kafka. L'ensemble est orchestré par une API Gateway qui centralise les accès (REST et GraphQL) et applique la sécurité (JWT). Chaque service dispose de sa propre base de données MongoDB, ce qui garantit l'indépendance et la scalabilité. Un front-end de test permet de valider les fonctionnalités principales.
+
 ## Sommaire
 - [Présentation](#présentation)
 - [Architecture](#architecture)
@@ -26,48 +30,15 @@ Il utilise :
 - **API Gateway** pour centraliser les appels
 - **Front-end HTML/JS** pour tester les fonctionnalités
 
+> Remarque : Les outils CI/CD, Docker, Kubernetes et le monitoring ne sont pas inclus dans cette version du projet. L'architecture présentée correspond aux composants effectivement développés et utilisés dans ce projet.
+
 ---
 
 ## Architecture
 
 ### Vue d'ensemble
-```
-+-------------------+         +-------------------+         +-------------------+
-|                   |         |                   |         |                   |
-|  API Gateway      +-------->+  Auth Service     |         |  Product Service  |
-|  (Express, port   |         |  (gRPC, port 50051|         |  (gRPC, port 50056|
-|   4000)           |         |   MongoDB)        |         |   MongoDB)        |
-+--------+----------+         +-------------------+         +-------------------+
-         |                                                    
-         |                                                    
-         v                                                    
-+-------------------+                                         
-|                   |                                         
-|  Decoration       |                                         
-|  Service          |                                         
-|  (gRPC, port      |                                         
-|   50053, MongoDB) |                                         
-+--------+----------+                                         
-         |                                                    
-         v                                                    
-+-------------------+                                         
-|                   |                                         
-|  Kafka (9092)     |<-----------------------------------------+
-|  (broker)         |           (events: gateway, product, decoration)
-+-------------------+                                         
-         ^                                                    
-         |                                                    
-+--------+----------+                                         
-|                   |                                         
-|  Front-end HTML   |                                         
-|  (localhost:3000) |                                         
-+-------------------+                                         
-|                   |                                         
-|  Cart Service     |                                         
-|  (gRPC, 50054)    |                                         
-|  MongoDB          |                                         
-+-------------------+                                         
-```
+
+![Architecture Microservices](images/architecture.jpg)
 
 ### Composants Principaux
 
@@ -168,17 +139,23 @@ Client → API Gateway → Decoration Service → MongoDB
 - Contrôle d'accès basé sur les rôles (admin/client)
 - Gestion sécurisée des mots de passe (hachage bcrypt)
 - Middleware de validation des tokens
+- **openRoutes** : certaines routes (ex : `/auth/login`, `/auth/register`) sont accessibles sans authentification pour permettre l'inscription et la connexion des utilisateurs.
 - Protection contre les injections
 - Validation des entrées
 - Rate limiting
 - CORS configuré
 
-### Monitoring et Logging
-- Logs centralisés pour chaque service
-- Métriques de performance
-- Traçage des requêtes
-- Alertes sur les erreurs
-- Monitoring des ressources
+### openRoutes (Routes publiques)
+
+Certaines routes de l'API Gateway sont accessibles sans authentification (openRoutes), comme `/auth/login` et `/auth/register`.  
+Elles permettent à un utilisateur de s'inscrire ou de se connecter sans avoir déjà un token JWT.  
+Dans le code, ces routes sont listées dans un tableau `openRoutes` et le middleware d'authentification les laisse passer sans vérification de token.
+
+**Exemples de routes publiques** :
+- `POST /auth/login`
+- `POST /auth/register`
+
+Toutes les autres routes nécessitent un token JWT valide.
 
 ### Composants de Test
 - Interface frontend de test (Port 3000)
@@ -187,375 +164,6 @@ Client → API Gateway → Decoration Service → MongoDB
 - Test des API REST via Postman
 - Tests GraphQL via Apollo Studio
 - Tests de charge avec Artillery
-
-### Pipeline CI/CD
-
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │     │                 │
-│  Développement  │────▶│     Tests       │────▶│    Build        │────▶│   Déploiement   │
-│                 │     │                 │     │                 │     │                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘     └─────────────────┘
-        │                       │                       │                       │
-        │                       │                       │                       │
-        ▼                       ▼                       ▼                       ▼
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │     │                 │
-│  Git Flow       │     │  Unit Tests     │     │  Docker Images  │     │  Kubernetes     │
-│  Feature Branch │     │  Integration    │     │  NPM Packages   │     │  Helm Charts    │
-│  PR Review      │     │  E2E Tests      │     │  Proto Files    │     │  Monitoring     │
-└─────────────────┘     └─────────────────┘     └─────────────────┘     └─────────────────┘
-```
-
-#### 1. Développement
-- **Git Flow**
-  - Feature branches pour chaque nouvelle fonctionnalité
-  - Pull Requests avec revue de code
-  - Merge vers develop après approbation
-- **Standards de Code**
-  - ESLint pour le linting
-  - Prettier pour le formatage
-  - Documentation des API avec JSDoc
-
-#### 2. Tests
-- **Tests Unitaires**
-  - Jest pour les tests unitaires
-  - Couverture de code > 80%
-- **Tests d'Intégration**
-  - Tests gRPC
-  - Tests Kafka
-  - Tests MongoDB
-- **Tests E2E**
-  - Tests API REST
-  - Tests GraphQL
-  - Tests d'authentification
-
-### Tests des Fichiers Proto
-
-#### 1. Installation des Outils
-```bash
-# Installation de grpcurl pour tester les services gRPC
-go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
-
-# Installation de protoc (protobuf compiler)
-# Pour Windows (avec Chocolatey)
-choco install protoc
-
-# Pour Linux
-apt-get install protobuf-compiler
-
-# Pour macOS
-brew install protobuf
-```
-
-#### 2. Vérification de la Syntaxe
-```bash
-# Vérifier la syntaxe d'un fichier proto
-protoc --proto_path=. --descriptor_set_out=service.pb service.proto
-```
-
-#### 3. Tests avec grpcurl
-
-##### Auth Service (Port 50051)
-```bash
-# Lister les services disponibles
-grpcurl -plaintext localhost:50051 list
-
-# Lister les méthodes du service d'authentification
-grpcurl -plaintext localhost:50051 list auth.AuthService
-
-# Tester la méthode login
-grpcurl -plaintext -d '{"username": "admin", "password": "admin123"}' \
-  localhost:50051 auth.AuthService/login
-
-# Tester la méthode register
-grpcurl -plaintext -d '{
-  "username": "testuser",
-  "email": "test@example.com",
-  "password": "test123",
-  "role": "customer"
-}' localhost:50051 auth.AuthService/register
-```
-
-##### Cart Service (Port 50054)
-```bash
-# Tester l'ajout au panier
-grpcurl -plaintext -d '{
-  "userId": "user1",
-  "productId": "prod1",
-  "quantity": 2
-}' localhost:50054 CartService/AddToCart
-
-# Tester la récupération du panier
-grpcurl -plaintext -d '{"userId": "user1"}' \
-  localhost:50054 CartService/GetCart
-```
-
-##### Product Service (Port 50056)
-```bash
-# Tester la recherche de produits
-grpcurl -plaintext -d '{
-  "query": "table",
-  "category": "furniture",
-  "min_price": 100,
-  "max_price": 500
-}' localhost:50056 ProductService/searchProducts
-
-# Tester la récupération d'un produit
-grpcurl -plaintext -d '{"product_id": "prod1"}' \
-  localhost:50056 ProductService/getProduct
-```
-
-##### Decoration Service (Port 50053)
-```bash
-# Tester la recherche d'articles de décoration
-grpcurl -plaintext -d '{
-  "query": "vase",
-  "style": "modern",
-  "material": "ceramic",
-  "min_price": 50,
-  "max_price": 200
-}' localhost:50053 DecorationService/searchDecorationArticles
-```
-
-#### 4. Tests Automatisés
-
-##### Exemple de Test avec Jest
-```javascript
-// test/proto.test.js
-const grpc = require('@grpc/grpc-js');
-const protoLoader = require('@grpc/proto-loader');
-const path = require('path');
-
-describe('Proto Tests', () => {
-  let client;
-
-  beforeAll(() => {
-    const PROTO_PATH = path.join(__dirname, '../auth.proto');
-    const packageDefinition = protoLoader.loadSync(PROTO_PATH);
-    const proto = grpc.loadPackageDefinition(packageDefinition).auth;
-    client = new proto.AuthService(
-      'localhost:50051',
-      grpc.credentials.createInsecure()
-    );
-  });
-
-  test('Login should return token', (done) => {
-    client.login(
-      { username: 'admin', password: 'admin123' },
-      (err, response) => {
-        expect(err).toBeNull();
-        expect(response.token).toBeDefined();
-        done();
-      }
-    );
-  });
-});
-```
-
-#### 5. Bonnes Pratiques
-
-1. **Validation des Messages**
-   - Utiliser des validations strictes dans les fichiers proto
-   - Définir des règles de validation pour les champs requis
-   - Spécifier les types de données appropriés
-
-2. **Documentation**
-   - Ajouter des commentaires pour chaque service et méthode
-   - Documenter les paramètres et les retours
-   - Inclure des exemples d'utilisation
-
-3. **Versioning**
-   - Utiliser la versioning sémantique pour les fichiers proto
-   - Maintenir la compatibilité ascendante
-   - Documenter les changements de version
-
-4. **Tests de Performance**
-   - Tester les temps de réponse
-   - Vérifier la gestion des erreurs
-   - Tester la charge avec plusieurs clients simultanés
-
-### Tests avec Postman
-
-#### 1. Configuration de Postman pour gRPC
-
-1. **Installation**
-   - Télécharger et installer [Postman](https://www.postman.com/downloads/)
-   - Installer l'extension gRPC dans Postman
-
-2. **Configuration du Workspace**
-   - Créer un nouveau workspace "Decoration SOA"
-   - Importer les fichiers proto dans Postman
-   - Configurer les variables d'environnement pour les ports
-
-#### 2. Tests des Services
-
-##### Auth Service (Port 50051)
-```json
-// Configuration de la requête
-{
-  "method": "auth.AuthService/login",
-  "host": "localhost:50051",
-  "request": {
-    "username": "admin",
-    "password": "admin123"
-  }
-}
-
-![auth service](images/test_register_admin.png)
-
-// Configuration de l'inscription
-{
-  "method": "auth.AuthService/register",
-  "host": "localhost:50051",
-  "request": {
-    "username": "testuser",
-    "email": "test@example.com",
-    "password": "test123",
-    "role": "customer"
-  }
-}
-```
-
-##### Cart Service (Port 50054)
-```json
-// Ajout au panier
-{
-  "method": "CartService/AddToCart",
-  "host": "localhost:50054",
-  "request": {
-    "userId": "user1",
-    "productId": "prod1",
-    "quantity": 2
-  }
-}
-
-// Récupération du panier
-{
-  "method": "CartService/GetCart",
-  "host": "localhost:50054",
-  "request": {
-    "userId": "user1"
-  }
-}
-```
-
-##### Product Service (Port 50056)
-```json
-// Recherche de produits
-{
-  "method": "ProductService/searchProducts",
-  "host": "localhost:50056",
-  "request": {
-    "query": "table",
-    "category": "furniture",
-    "min_price": 100,
-    "max_price": 500
-  }
-}
-
-// Récupération d'un produit
-{
-  "method": "ProductService/getProduct",
-  "host": "localhost:50056",
-  "request": {
-    "product_id": "prod1"
-  }
-}
-```
-
-##### Decoration Service (Port 50053)
-```json
-// Recherche d'articles de décoration
-{
-  "method": "DecorationService/searchDecorationArticles",
-  "host": "localhost:50053",
-  "request": {
-    "query": "vase",
-    "style": "modern",
-    "material": "ceramic",
-    "min_price": 50,
-    "max_price": 200
-  }
-}
-```
-
-#### 3. Collections Postman
-
-1. **Création de Collections**
-   - Créer une collection pour chaque service
-   - Organiser les requêtes par fonctionnalité
-   - Ajouter des tests automatiques
-
-2. **Variables d'Environnement**
-```json
-{
-  "auth_service": "localhost:50051",
-  "cart_service": "localhost:50054",
-  "product_service": "localhost:50056",
-  "decoration_service": "localhost:50053",
-  "api_gateway": "localhost:4000"
-}
-```
-
-3. **Tests Automatisés**
-```javascript
-// Exemple de test pour l'authentification
-pm.test("Login successful", function () {
-    pm.response.to.have.status(200);
-    var jsonData = pm.response.json();
-    pm.expect(jsonData.token).to.exist;
-    pm.expect(jsonData.user).to.exist;
-});
-
-// Exemple de test pour le panier
-pm.test("Cart updated", function () {
-    pm.response.to.have.status(200);
-    var jsonData = pm.response.json();
-    pm.expect(jsonData.success).to.be.true;
-    pm.expect(jsonData.items).to.be.an('array');
-});
-```
-
-#### 4. Exécution des Tests
-
-1. **Tests Manuels**
-   - Ouvrir Postman
-   - Sélectionner la collection
-   - Choisir l'environnement
-   - Exécuter les requêtes
-
-2. **Tests Automatisés**
-   - Utiliser le runner de Postman
-   - Configurer les itérations
-   - Exporter les rapports
-
-3. **Monitoring**
-   - Vérifier les temps de réponse
-   - Analyser les erreurs
-   - Générer des rapports
-
-#### 5. Bonnes Pratiques
-
-1. **Organisation**
-   - Créer des collections par service
-   - Utiliser des variables d'environnement
-   - Documenter les requêtes
-
-2. **Tests**
-   - Ajouter des tests pour chaque requête
-   - Vérifier les cas d'erreur
-   - Tester les limites
-
-3. **Sécurité**
-   - Gérer les tokens d'authentification
-   - Tester les autorisations
-   - Vérifier les validations
-
-4. **Performance**
-   - Mesurer les temps de réponse
-   - Tester la charge
-   - Analyser les goulots d'étranglement
 
 ---
 
@@ -676,8 +284,6 @@ Dans différents terminaux :
 
 ---
 
-
-
 ## Exemples de requêtes Postman
 
 ### 1. Authentification (Register & Login)
@@ -698,6 +304,8 @@ Dans différents terminaux :
   "message": "Utilisateur enregistré avec succès"
 }
 ```
+![Inscription (Register)](images/test_register_admin.png)
+
 
 #### Connexion (Login)
 - **URL** : `POST http://localhost:4000/auth/login`
@@ -715,6 +323,8 @@ Dans différents terminaux :
   "token": "<JWT>"
 }
 ```
+
+![Connexion (Login)](images/test_post_login.png)
 
 ### 2. Envoi d'un message Kafka via l'API Gateway (si exposé)
 - **URL** : `POST http://localhost:3000/send-message`
@@ -745,33 +355,12 @@ Dans différents terminaux :
 **N'hésite pas à adapter ce README à tes besoins spécifiques !**
 Si tu veux un schéma d'architecture graphique ou des exemples de requêtes, demande-moi ! 
 
-# Terminal 1 - Start Kafka (if not already running)
-# Make sure Kafka is running on localhost:9092
+## 📜 Auteur
 
-# Terminal 2 - Start Auth Service
-cd auth-service
-node authMicroservice.js
+👤 Samah Saidi
 
-# Terminal 3 - Start Cart Service
-cd cart-service
-node cartServer.js
+4Info - Classe DS1
 
-# Terminal 4 - Start Product Service
-cd product-service
-node productServer.js
+📧 Contact: samah.saidi@polytechnicien.tn
 
-# Terminal 5 - Start Decoration Service
-cd decoration-service
-node decorationServer.js
-
-# Terminal 6 - Start API Gateway
-cd api-gateway
-node apiGateway.js
-
-
-## Auteurs
-
-- [Ton nom]
-- [Collaborateurs éventuels]
-
----
+🔗 GitHub: https://github.com/samah-saidi
